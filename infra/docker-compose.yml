@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: ariadne-mysql
+
+    ports:
+      - "3306:3306"
+
+    environment:
+      MYSQL_DATABASE: ariadne
+      MYSQL_USER: ariadne
+      MYSQL_PASSWORD: ariadne-local
+      MYSQL_ROOT_PASSWORD: root-local
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

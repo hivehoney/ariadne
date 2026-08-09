@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/ariadne}
+    username: ${DB_USERNAME:ariadne}
+    password: ${DB_PASSWORD:ariadne-local}
+
+  jpa:
+    open-in-view: false
