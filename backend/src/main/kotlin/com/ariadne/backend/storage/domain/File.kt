@@ -86,6 +86,15 @@ open class File protected constructor() {
             "size cannot be negative"
         }
 
+        val changed =
+            this.name != name ||
+                    this.mimeType != mimeType ||
+                    this.size != size
+
+        if (!changed) {
+            return
+        }
+
         this.name = name
         this.mimeType = mimeType
         this.size = size
