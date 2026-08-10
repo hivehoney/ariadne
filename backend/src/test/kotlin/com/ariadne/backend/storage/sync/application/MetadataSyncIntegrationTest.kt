@@ -10,8 +10,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.dao.DataIntegrityViolationException
 import java.time.Instant
 
 @SpringBootTest
@@ -153,5 +156,56 @@ class MetadataSyncIntegrationTest @Autowired constructor(
 
         assertEquals(2L, fileRepository.count())
         assertEquals(2L, fileLocationRepository.count())
+    }
+
+    @Test
+    fun `Sync 저장 중 실패하면 전체 Metadata 변경을 Rollback한다`() {
+        val storageSource = storageSourceRepository.save(
+            StorageSource(
+                type = StorageSourceType.GOOGLE_DRIVE,
+                displayName = "Test Google Drive",
+            ),
+        )
+
+        val storageSourceId = requireNotNull(storageSource.id)
+
+        val metadata = listOf(
+            StorageFileMetadata(
+                externalId = "rollback-file-001",
+                name = "first.pdf",
+                mimeType = "application/pdf",
+                size = 1024L,
+                path = "/Documents/first.pdf",
+                modifiedAt = Instant.parse("2026-08-10T01:00:00Z"),
+            ),
+
+            // file_locations.path는 VARCHAR(2048)이므로
+            // DB 저장 시 실패하도록 2049자 값을 전달한다.
+            StorageFileMetadata(
+                externalId = "rollback-file-002",
+                name = "second.pdf",
+                mimeType = "application/pdf",
+                size = 2048L,
+                path = "a".repeat(2049),
+                modifiedAt = Instant.parse("2026-08-10T02:00:00Z"),
+            ),
+        )
+
+        assertThrows(DataIntegrityViolationException::class.java) {
+            metadataSyncPersistenceService.persist(
+                storageSourceId = storageSourceId,
+                metadata = metadata,
+                syncedAt = Instant.parse("2026-08-10T03:00:00Z"),
+            )
+        }
+
+        assertEquals(0L, fileRepository.count())
+        assertEquals(0L, fileLocationRepository.count())
+
+        val savedStorageSource = storageSourceRepository
+            .findById(storageSourceId)
+            .orElseThrow()
+
+        assertNull(savedStorageSource.lastSyncedAt)
     }
 }
