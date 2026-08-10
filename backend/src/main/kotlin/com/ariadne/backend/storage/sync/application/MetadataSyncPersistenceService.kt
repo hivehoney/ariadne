@@ -27,9 +27,7 @@ class MetadataSyncPersistenceService(
     fun persist(storageSourceId: Long, metadata: List<StorageFileMetadata>, syncedAt: Instant,) {
         val storageSource = storageSourceRepository
             .findById(storageSourceId)
-            .orElseThrow {
-                IllegalArgumentException("StorageSource not found: $storageSourceId",)
-            }
+            .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
 
         metadata.forEach { item ->
             val existingLocation = fileLocationRepository.findByStorageSource_IdAndExternalId(

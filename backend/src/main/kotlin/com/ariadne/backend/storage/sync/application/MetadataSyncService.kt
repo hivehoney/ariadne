@@ -21,11 +21,7 @@ class MetadataSyncService(
     fun sync(storageSourceId: Long) {
         val storageSource = storageSourceRepository
             .findById(storageSourceId)
-            .orElseThrow {
-                IllegalArgumentException(
-                    "StorageSource not found: $storageSourceId",
-                )
-            }
+            .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
 
         val provider = storageProviderResolver.resolve(storageSource.type)
 
