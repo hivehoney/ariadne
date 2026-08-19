@@ -54,5 +54,9 @@ class StorageConnectorResolverTest {
 
     private class FakeStorageConnector(
         override val type: StorageSourceType,
-    ) : StorageConnector
+    ) : StorageConnector {
+        override fun connect(request: StorageConnectionRequest): StorageConnectionResult {
+            throw UnsupportedOperationException("Resolver 테스트에서는 connect를 사용하지 않는다.")
+        }
+    }
 }
