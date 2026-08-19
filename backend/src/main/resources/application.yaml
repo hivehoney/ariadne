@@ -1,11 +1,32 @@
 spring:
-  application:
-    name: backend
-
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ariadne}
     username: ${DB_USERNAME:ariadne}
     password: ${DB_PASSWORD:ariadne-local}
 
+    hikari:
+      pool-name: AriadneHikariPool
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:5000}
+      validation-timeout: ${DB_POOL_VALIDATION_TIMEOUT:1000}
+
   jpa:
     open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+
+ariadne:
+  credential:
+#    encryption-key: ${ARIADNE_CREDENTIAL_ENCRYPTION_KEY}
+    encryption-key: AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=
+
+  storage:
+    google-drive:
+      oauth:
+        client-id: test-google-client-id
+        client-secret: test-google-client-secret
+        redirect-uri: ""
+#        client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+#        client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+#        redirect-uri: ${GOOGLE_OAUTH_REDIRECT_URI:}
