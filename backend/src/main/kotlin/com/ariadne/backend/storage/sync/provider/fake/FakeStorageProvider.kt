@@ -4,6 +4,7 @@ import com.ariadne.backend.storage.domain.StorageSource
 import com.ariadne.backend.storage.domain.StorageSourceType
 import com.ariadne.backend.storage.sync.provider.StorageFileMetadata
 import com.ariadne.backend.storage.sync.provider.StorageProvider
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.Instant
 
@@ -13,6 +14,7 @@ import java.time.Instant
  * Google Drive 연동 전까지 고정된 파일 Metadata를 반환한다.
  */
 @Component
+@Profile("test")
 class FakeStorageProvider : StorageProvider {
 
     override val type: StorageSourceType = StorageSourceType.GOOGLE_DRIVE
