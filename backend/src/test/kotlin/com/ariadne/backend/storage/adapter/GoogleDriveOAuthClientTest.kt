@@ -115,4 +115,49 @@ class GoogleDriveOAuthClientTest {
             client.exchangeAuthorizationCode(" ")
         }.isInstanceOf(IllegalArgumentException::class.java)
     }
+
+    @Test
+    fun `Refresh Token으로 새로운 Access Token을 발급한다`() {
+        // given
+        val expectedFormData = LinkedMultiValueMap<String, String>().apply {
+            add("client_id", "test-client-id")
+            add("client_secret", "test-client-secret")
+            add("refresh_token", "refresh-token")
+            add("grant_type", "refresh_token")
+        }
+
+        mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().formData(expectedFormData))
+            .andRespond(
+                withSuccess(
+                    """
+                {
+                  "access_token": "new-access-token",
+                  "expires_in": 3600,
+                  "scope": "https://www.googleapis.com/auth/drive.metadata.readonly",
+                  "token_type": "Bearer"
+                }
+                """.trimIndent(),
+                    MediaType.APPLICATION_JSON,
+                ),
+            )
+
+        // when
+        val token = client.refreshAccessToken("refresh-token")
+
+        // then
+        assertThat(token.accessToken).isEqualTo("new-access-token")
+        assertThat(token.expiresIn).isEqualTo(3600)
+        assertThat(token.tokenType).isEqualTo("Bearer")
+
+        mockServer.verify()
+    }
+
+    @Test
+    fun `Refresh Token은 비어 있을 수 없다`() {
+        assertThatThrownBy {
+            client.refreshAccessToken(" ")
+        }.isInstanceOf(IllegalArgumentException::class.java)
+    }
 }

@@ -72,4 +72,37 @@ class GoogleDriveOAuthClient(
     companion object {
         private const val GOOGLE_OAUTH_BASE_URL = "https://oauth2.googleapis.com"
     }
+
+    fun refreshAccessToken(refreshToken: String): GoogleDriveAccessToken {
+        require(refreshToken.isNotBlank()) {
+            "Google refresh token must not be blank."
+        }
+
+        val formData = LinkedMultiValueMap<String, String>().apply {
+            add("client_id", clientId)
+            add("client_secret", clientSecret)
+            add("refresh_token", refreshToken)
+            add("grant_type", "refresh_token")
+        }
+
+        return try {
+            restClient.post()
+                .uri("/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(formData)
+                .retrieve()
+                .body(GoogleDriveAccessToken::class.java)
+                ?: throw GoogleDriveOAuthException("Google OAuth token response is empty.")
+        } catch (exception: RestClientResponseException) {
+            throw GoogleDriveOAuthException(
+                "Google OAuth token refresh failed: HTTP ${exception.statusCode.value()}",
+                exception,
+            )
+        } catch (exception: RestClientException) {
+            throw GoogleDriveOAuthException(
+                "Failed to communicate with Google OAuth server.",
+                exception,
+            )
+        }
+    }
 }

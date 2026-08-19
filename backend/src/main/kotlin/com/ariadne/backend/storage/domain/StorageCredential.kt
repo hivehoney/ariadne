@@ -181,4 +181,12 @@ class StorageCredential(
         this.credentialStatus = status
         this.updatedAt = updatedAt
     }
+
+    /**
+     * Refresh Token을 사용해 Access Token을 정상적으로 재발급한 시점을 기록한다.
+     */
+    fun markRefreshed(refreshedAt: LocalDateTime = LocalDateTime.now()) {
+        lastRefreshedAt = refreshedAt
+        updatedAt = refreshedAt
+    }
 }
