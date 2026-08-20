@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Search
@@ -38,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,32 +48,44 @@ import androidx.compose.ui.unit.dp
 import com.ariadne.android.ui.theme.AriadneTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    LazyColumn(
+fun HomeScreen(modifier: Modifier = Modifier, onSearchClick: () -> Unit = {}, onStorageClick: (String) -> Unit = {}) {
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(bottom = 32.dp)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        item {
-            HomeHeader()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 120.dp)
+        ) {
+            item {
+                HomeHeader()
+            }
+
+            item {
+                CategorySection()
+            }
+
+            item {
+                RecentFilesSection()
+            }
+
+            item {
+                OrganizationSuggestionSection()
+            }
+
+            item {
+                StorageSection(onStorageClick = onStorageClick)
+            }
         }
 
-        item {
-            CategorySection()
-        }
-
-        item {
-            RecentFilesSection()
-        }
-
-        item {
-            OrganizationSuggestionSection()
-        }
-
-        item {
-            StorageSection()
-        }
+        HomeSearchBar(
+            onClick = onSearchClick,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(0.62f)
+                .padding(bottom = 18.dp)
+        )
     }
 }
 
@@ -89,13 +103,6 @@ private fun HomeHeader() {
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
-
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "검색"
-            )
-        }
 
         IconButton(onClick = {}) {
             Icon(
@@ -290,7 +297,7 @@ private fun OrganizationSuggestionSection() {
 }
 
 @Composable
-private fun StorageSection() {
+private fun StorageSection(onStorageClick: (String) -> Unit) {
     val storages = listOf(
         StorageUiModel("Google Drive", "연결됨", Icons.Default.Cloud),
         StorageUiModel("OneDrive", "연결하기", Icons.Default.Cloud),
@@ -303,68 +310,59 @@ private fun StorageSection() {
     ) {
         SectionHeader(title = "저장공간")
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Column {
-                storages.forEachIndexed { index, storage ->
-                    StorageRow(storage)
-
-                    if (index != storages.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 58.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    }
+        storages.forEach { storage ->
+            StorageRow(
+                storage = storage,
+                onClick = {
+                    onStorageClick(storage.name)
                 }
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun StorageRow(storage: StorageUiModel) {
+private fun StorageRow(storage: StorageUiModel, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
-            .padding(horizontal = 18.dp, vertical = 17.dp),
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = storage.icon,
             contentDescription = storage.name,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(28.dp),
         )
 
-        Text(
-            text = storage.name,
+        Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 16.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        storage.status?.let {
+                .padding(start = 18.dp)
+        ) {
             Text(
-                text = it,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = storage.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
             )
+
+            storage.status?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(top = 3.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .size(20.dp),
+            modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -394,6 +392,47 @@ private fun SectionHeader(
                 modifier = Modifier.clickable { },
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeSearchBar(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(32.dp),
+        color = Color(0xFF2E2E30)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+                tint = Color(0xFFB8B8BC)
+            )
+
+            Text(
+                text = "검색",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF9B9B9F)
+            )
+
+            Icon(
+                imageVector = Icons.Default.Mic,
+                contentDescription = "음성 검색",
+                modifier = Modifier.size(26.dp),
+                tint = Color.White
             )
         }
     }
