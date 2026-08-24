@@ -13,7 +13,8 @@ data class DriveAboutDto(
  */
 data class DriveUserDto(
     val displayName: String? = null,
-    val emailAddress: String? = null
+    val emailAddress: String? = null,
+    val permissionId: String? = null
 )
 
 /**
@@ -42,3 +43,4 @@ data class DriveFileDto(
     val size: String? = null,
     val modifiedTime: String? = null
 )
+

@@ -3,6 +3,7 @@ package com.ariadne.android.data.storage.google
 import com.ariadne.android.data.storage.model.StorageConnection
 import com.ariadne.android.data.storage.model.StorageFile
 import com.ariadne.android.data.storage.model.StorageFileType
+import com.ariadne.android.data.storage.model.StorageProviderType
 import com.ariadne.android.data.storage.model.StorageSnapshot
 
 /**
@@ -23,6 +24,14 @@ object DriveMapper {
 
     // Google 계정 정보를 공통 연결 정보로 변환
     private fun toConnection( about: DriveAboutDto ): StorageConnection {
+        val user = requireNotNull(about.user) {
+            "Google Drive 사용자 정보를 가져오지 못했습니다."
+        }
+
+        val accountId = requireNotNull(user.permissionId) {
+            "Google Drive 계정 식별자를 가져오지 못했습니다."
+        }
+
         val limit = about.storageQuota?.limit?.toLongOrNull()
         val usage = about.storageQuota?.usage?.toLongOrNull()
 
@@ -34,9 +43,11 @@ object DriveMapper {
             }
 
         return StorageConnection(
+            providerType = StorageProviderType.GOOGLE_DRIVE,
+            accountId = accountId,
             name = "Google Drive",
-            account = about.user?.emailAddress
-                ?: about.user?.displayName
+            account = user.emailAddress
+                ?: user.displayName
                 ?: "Google 계정",
             availableBytes = available,
             totalBytes = limit
@@ -48,6 +59,7 @@ object DriveMapper {
         return StorageFile(
             externalId = file.id,
             name = file.name,
+            mimeType = file.mimeType,
             modifiedAt = file.modifiedTime,
             size = file.size?.toLongOrNull(),
             type = resolveType(file)

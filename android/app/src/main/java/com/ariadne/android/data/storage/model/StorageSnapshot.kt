@@ -15,6 +15,8 @@ data class StorageSnapshot(
  * 연결된 외부 Storage의 계정 및 용량 정보
  */
 data class StorageConnection(
+    val providerType: StorageProviderType,
+    val accountId: String,
     val name: String,
     val account: String,
     val availableBytes: Long? = null,
@@ -27,11 +29,22 @@ data class StorageConnection(
 data class StorageFile(
     val externalId: String,
     val name: String,
+    val mimeType: String,
     val modifiedAt: String? = null,
     val size: Long? = null,
     val type: StorageFileType,
     val itemCount: Int? = null
 )
+
+/**
+ * 외부 Storage Provider 식별 타입
+ *
+ * 현재 실제 지원 Provider만 정의하고,
+ * 새로운 Provider 구현 시 값을 추가한다.
+ */
+enum class StorageProviderType {
+    GOOGLE_DRIVE
+}
 
 /**
  * Provider에 관계없이 사용하는 공통 파일 유형 정의

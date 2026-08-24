@@ -72,7 +72,7 @@ class DriveClient( private val accessToken: String ) : StorageClient {
         // Google Drive REST API 주소
         private const val DRIVE_API_URL = "https://www.googleapis.com/drive/v3/"
         // Google 계정 조회 필드
-        private const val ABOUT_FIELDS = "user(displayName,emailAddress),storageQuota(limit,usage)"
+        private const val ABOUT_FIELDS = "user(displayName,emailAddress,permissionId),storageQuota(limit,usage)"
         // Google 루트 파일 조회 조건
         private const val ROOT_QUERY = "'root' in parents and trashed = false"
         // Google 파일 조회 필드
