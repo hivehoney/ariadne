@@ -122,4 +122,18 @@ abstract class StorageCacheDao {
             accountId = accountId
         )
     }
+
+    // Provider의 가장 최근 Storage Cache 조회
+    @Query(
+        """
+        SELECT *
+        FROM cached_storages
+        WHERE provider_type = :providerType
+        ORDER BY last_synced_at DESC
+        LIMIT 1
+        """
+    )
+    abstract suspend fun getLatestStorage(
+        providerType: String
+    ): CachedStorageEntity?
 }

@@ -13,12 +13,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ariadne.android.data.storage.StorageRepository
 import com.ariadne.android.data.storage.google.DriveClient
-import com.ariadne.android.ui.common.model.ConnectionInfoUiModel
+import com.ariadne.android.data.storage.local.AriadneDatabaseProvider
+import com.ariadne.android.data.storage.model.StorageProviderType
 import com.ariadne.android.ui.storage.StorageRoute
-import com.ariadne.android.ui.storage.StorageScreen
 
-// Google Drive 연결과 공통 Storage 화면 연결
+/**
+ * Google Drive 인증과 공통 Storage 화면 연결
+ *
+ * Local Cache를 먼저 표시하고 Google 인증이 완료되면
+ * DriveClient를 통해 최신 Metadata를 갱신한다.
+ */
 @Composable
 fun GoogleDriveRoute(
     storageName: String,
@@ -35,6 +41,21 @@ fun GoogleDriveRoute(
 
     // 현재 Google 인증 오류 메시지 구독
     val errorMessage by authViewModel.errorMessage.collectAsState()
+
+    // Ariadne Local Database 관리
+    val database = remember {
+        AriadneDatabaseProvider.getDatabase(
+            context.applicationContext
+        )
+    }
+
+    // Google Drive Storage Repository 관리
+    val repository = remember(database) {
+        StorageRepository(
+            cacheDao = database.storageCacheDao(),
+            providerType = StorageProviderType.GOOGLE_DRIVE
+        )
+    }
 
     // Google 사용자 동의 화면 실행 및 결과 처리
     val authLauncher = rememberLauncherForActivityResult(
@@ -62,7 +83,7 @@ fun GoogleDriveRoute(
         authViewModel.authorize()
     }
 
-    // Google 인증 상태별 UI 동작 처리
+    // Google 인증 상태별 동작 처리
     LaunchedEffect(authState) {
         when (val state = authState) {
             is GoogleAuthState.RequiresUserAction -> {
@@ -75,6 +96,9 @@ fun GoogleDriveRoute(
             }
 
             GoogleAuthState.Disconnected -> {
+                // 연결 해제 시 Local Metadata Cache 제거
+                repository.clearCache()
+
                 Toast.makeText(
                     context,
                     "Google Drive 연결이 해제되었습니다.",
@@ -101,67 +125,34 @@ fun GoogleDriveRoute(
         authViewModel.consumeError()
     }
 
-    when (authState) {
-        GoogleAuthState.Authorized -> {
-            val accessToken = authViewModel.currentAccessToken()
-
-            if (accessToken != null) {
-                // Google Drive Storage Client 생성
-                val client = remember(accessToken) {
-                    DriveClient(accessToken)
-                }
-
-                StorageRoute(
-                    storageName = storageName,
-                    client = client,
-                    onBackClick = onBackClick,
-                    onSearchClick = onSearchClick,
-                    onAccountClick = {
-                        // Google 계정 선택 기능 추후 연결
-                    },
-                    onDisconnectClick = { accountEmail ->
-                        authViewModel.disconnect(accountEmail)
-                    },
-                    modifier = modifier
-                )
+    // 인증 완료 시에만 Google Remote Client 생성
+    val client = if (authState == GoogleAuthState.Authorized) {
+        authViewModel.currentAccessToken()?.let { accessToken ->
+            remember(accessToken) {
+                DriveClient(accessToken)
             }
         }
-
-        is GoogleAuthState.Failed -> {
-            // Google 인증 실패 화면 표시
-            StorageScreen(
-                storageName = storageName,
-                files = emptyList(),
-                connectionInfo = ConnectionInfoUiModel(
-                    title = "Google Drive",
-                    account = "연결 실패",
-                    detail = ""
-                ),
-                onBackClick = onBackClick,
-                onSearchClick = onSearchClick,
-                modifier = modifier
-            )
-        }
-
-        GoogleAuthState.Disconnected -> {
-            // 연결 해제 후 Navigation 완료 대기
-        }
-
-        else -> {
-            // Google 인증 진행 화면 표시
-            StorageScreen(
-                storageName = storageName,
-                files = emptyList(),
-                connectionInfo = ConnectionInfoUiModel(
-                    title = "Google Drive",
-                    account = "연결 확인 중...",
-                    detail = "동기화 준비 중..."
-                ),
-                isLoading = true,
-                onBackClick = onBackClick,
-                onSearchClick = onSearchClick,
-                modifier = modifier
-            )
-        }
+    } else {
+        null
     }
+
+    // 인증 실패 시에도 Local Cache 화면은 유지
+    val remoteErrorMessage =
+        (authState as? GoogleAuthState.Failed)?.message
+
+    StorageRoute(
+        storageName = storageName,
+        repository = repository,
+        client = client,
+        remoteErrorMessage = remoteErrorMessage,
+        onBackClick = onBackClick,
+        onSearchClick = onSearchClick,
+        onAccountClick = {
+            // Google 계정 선택 기능 추후 연결
+        },
+        onDisconnectClick = { accountEmail ->
+            authViewModel.disconnect(accountEmail)
+        },
+        modifier = modifier
+    )
 }

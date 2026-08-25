@@ -3,6 +3,7 @@ package com.ariadne.android.ui.storage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ariadne.android.data.storage.StorageClient
+import com.ariadne.android.data.storage.StorageRepository
 import com.ariadne.android.ui.common.model.ConnectionInfoUiModel
 import com.ariadne.android.ui.file.model.FileItemUiModel
 import kotlinx.coroutines.Job
@@ -14,10 +15,10 @@ import kotlinx.coroutines.launch
 /**
  * 외부 Storage 화면의 공통 상태와 데이터 관리
  *
- * StorageClient를 통해 Provider 종류와 관계없이 데이터를 조회하고,
- * 연결 정보와 파일 목록을 공통 UI 상태로 제공한다.
+ * StorageRepository의 Local Cache를 화면 데이터 기준으로 관찰하고,
+ * Remote 갱신 결과가 Room에 반영되면 UI 상태를 자동 갱신한다.
  */
-class StorageViewModel( private val client: StorageClient ) : ViewModel() {
+class StorageViewModel( private val repository: StorageRepository) : ViewModel() {
 
     // 현재 Storage 화면 상태 관리
     private val _uiState = MutableStateFlow(
@@ -29,39 +30,69 @@ class StorageViewModel( private val client: StorageClient ) : ViewModel() {
     // Storage 화면 상태 외부 제공
     val uiState: StateFlow<StorageUiState> = _uiState.asStateFlow()
 
-    // 현재 Storage 조회 작업 관리
-    private var loadJob: Job? = null
+    // Local Cache 관찰 작업 관리
+    private var observeJob: Job? = null
 
-    // Storage 데이터 조회
+    // Remote Storage 갱신 작업 관리
+    private var refreshJob: Job? = null
+
+    // Local Storage Cache 관찰
     fun load() {
-        if (loadJob?.isActive == true) return
+        if (observeJob?.isActive == true) return
 
-        loadJob = viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                errorMessage = null
-            )
+        observeJob = viewModelScope.launch {
+            repository.observeSnapshot()
+                .collect { snapshot ->
+                    if (snapshot == null) {
+                        return@collect
+                    }
+
+                    _uiState.value = StorageUiState(
+                        connectionInfo = StorageUiMapper.toConnectionInfo(snapshot),
+                        files = StorageUiMapper.toFileItems(snapshot),
+                        isLoading = false,
+                        errorMessage = _uiState.value.errorMessage
+                    )
+                }
+        }
+    }
+
+    // Remote Metadata 조회 및 Local Cache 갱신
+    fun refresh( client: StorageClient ) {
+        if (refreshJob?.isActive == true) return
+
+        refreshJob = viewModelScope.launch {
+            val hasCache = _uiState.value.connectionInfo != null
+
+            if (!hasCache) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    errorMessage = null
+                )
+            }
 
             runCatching {
-                client.loadRoot()
-            }.onSuccess { snapshot ->
-                _uiState.value = StorageUiState(
-                    connectionInfo = StorageUiMapper.toConnectionInfo(snapshot),
-                    files = StorageUiMapper.toFileItems(snapshot),
-                    isLoading = false
-                )
+                repository.refresh(client)
             }.onFailure { exception ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = exception.message ?: "Storage 데이터를 불러오지 못했습니다."
+                    errorMessage = if (hasCache) {
+                        "최신 Storage 정보를 갱신하지 못했습니다."
+                    } else {
+                        exception.message
+                            ?: "Storage 데이터를 불러오지 못했습니다."
+                    }
                 )
             }
         }
     }
 
-    // Storage 데이터 재조회
-    fun refresh() {
-        load()
+    // Remote 접근 불가 상태 처리
+    fun onRemoteUnavailable( message: String ) {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            errorMessage = message
+        )
     }
 
     // 표시 완료된 오류 메시지 제거
