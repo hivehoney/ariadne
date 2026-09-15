@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    # Testcontainers MySQL 8.4 사용
+    url: jdbc:tc:mysql:8.4:///ariadne
+    username: test
+    password: test
+
+  jpa:
+    hibernate:
+      # Flyway가 만든 Schema와 Entity Mapping이 일치하는지 검증
+      ddl-auto: validate
