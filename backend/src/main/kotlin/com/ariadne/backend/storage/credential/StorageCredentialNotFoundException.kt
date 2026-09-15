@@ -6,5 +6,5 @@ package com.ariadne.backend.storage.credential
 class StorageCredentialNotFoundException(
     storageSourceId: Long,
 ) : RuntimeException(
-    "Storage credential not found for storage source: $storageSourceId",
-)
+        "Storage credential not found for storage source: $storageSourceId",
+    )

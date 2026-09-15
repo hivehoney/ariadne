@@ -9,7 +9,6 @@ import com.ariadne.backend.storage.domain.StorageSourceType
 data class GoogleDriveConnectionRequest(
     val authorizationCode: String,
 ) : StorageConnectionRequest {
-
     override val type = StorageSourceType.GOOGLE_DRIVE
 
     init {

@@ -11,16 +11,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
  */
 @RestControllerAdvice
 class MetadataSyncExceptionHandler {
-
     @ExceptionHandler(StorageSourceNotFoundException::class)
-    fun handleStorageSourceNotFound( exception: StorageSourceNotFoundException,): ProblemDetail {
-        return ProblemDetail
+    fun handleStorageSourceNotFound(exception: StorageSourceNotFoundException): ProblemDetail =
+        ProblemDetail
             .forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 exception.message ?: "StorageSource not found",
-            )
-            .apply {
+            ).apply {
                 title = "StorageSource Not Found"
             }
-    }
 }

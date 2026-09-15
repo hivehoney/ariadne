@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class FakeStorageProviderTest {
-
     private val provider = FakeStorageProvider()
 
     @Test
     fun `Google Drive StorageSource의 파일 Metadata를 반환한다`() {
-        val storageSource = StorageSource(
-            type = StorageSourceType.GOOGLE_DRIVE,
-            displayName = "Test Google Drive",
-        )
+        val storageSource =
+            StorageSource(
+                type = StorageSourceType.GOOGLE_DRIVE,
+                displayName = "Test Google Drive",
+            )
 
         val metadata = provider.initialSync(storageSource)
 
@@ -32,10 +32,11 @@ class FakeStorageProviderTest {
 
     @Test
     fun `지원하지 않는 StorageSource 타입이면 실패한다`() {
-        val storageSource = StorageSource(
-            type = StorageSourceType.WINDOWS,
-            displayName = "Test Windows",
-        )
+        val storageSource =
+            StorageSource(
+                type = StorageSourceType.WINDOWS,
+                displayName = "Test Windows",
+            )
 
         assertThrows(IllegalArgumentException::class.java) {
             provider.initialSync(storageSource)

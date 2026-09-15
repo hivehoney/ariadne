@@ -15,17 +15,12 @@ class CredentialConfiguration(
     @Value("\${ariadne.credential.encryption-key}")
     private val encryptionKey: String,
 ) {
-
     @Bean
-    fun credentialCipher(): CredentialCipher {
-        return AesGcmCredentialCipher(encryptionKey)
-    }
+    fun credentialCipher(): CredentialCipher = AesGcmCredentialCipher(encryptionKey)
 
     @Bean
     fun credentialDataCodec(
         objectMapper: ObjectMapper,
         credentialCipher: CredentialCipher,
-    ): CredentialDataCodec {
-        return JsonEncryptedCredentialDataCodec(objectMapper, credentialCipher)
-    }
+    ): CredentialDataCodec = JsonEncryptedCredentialDataCodec(objectMapper, credentialCipher)
 }

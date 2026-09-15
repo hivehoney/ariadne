@@ -10,14 +10,13 @@ package com.ariadne.backend.storage.credential
  * Credential을 사용하는 코드가 영향을 받지 않도록 암호화 책임을 분리한다.
  */
 interface CredentialCipher {
-
     /**
      * DB에 저장하기 전에 평문 Credential을 암호화한다.
      */
-    fun encrypt(plainText: String,): String
+    fun encrypt(plainText: String): String
 
     /**
      * 외부 Storage API 호출에 사용하기 위해 저장된 Credential을 복호화한다.
      */
-    fun decrypt(encryptedText: String,): String
+    fun decrypt(encryptedText: String): String
 }

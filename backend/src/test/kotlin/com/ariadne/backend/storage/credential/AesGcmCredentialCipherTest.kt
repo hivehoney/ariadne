@@ -3,11 +3,9 @@ package com.ariadne.backend.storage.credential
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import java.security.SecureRandom
 import java.util.Base64
 
 class AesGcmCredentialCipherTest {
-
     private val encryptionKey =
         Base64.getEncoder().encodeToString(
             ByteArray(32) {
@@ -23,11 +21,12 @@ class AesGcmCredentialCipherTest {
     @Test
     fun `Credential을 암호화하고 다시 복호화할 수 있다`() {
         // given
-        val plainText = """
+        val plainText =
+            """
             {
               "refreshToken": "google-refresh-token"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         // when
         val encrypted =
@@ -76,7 +75,8 @@ class AesGcmCredentialCipherTest {
     fun `잘못된 암호화 Key 길이는 사용할 수 없다`() {
         // given
         val invalidKey =
-            Base64.getEncoder()
+            Base64
+                .getEncoder()
                 .encodeToString(
                     ByteArray(16),
                 )
@@ -123,13 +123,16 @@ class AesGcmCredentialCipherTest {
                 "refresh-token",
             )
 
-        val parts = encrypted.split(
-            ":",
-            limit = 2,
-        )
+        val parts =
+            encrypted.split(
+                ":",
+                limit = 2,
+            )
 
-        val payload = Base64.getDecoder()
-            .decode(parts[1])
+        val payload =
+            Base64
+                .getDecoder()
+                .decode(parts[1])
 
         payload[payload.lastIndex] =
             (payload.last() + 1).toByte()

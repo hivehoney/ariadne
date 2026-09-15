@@ -5,4 +5,4 @@ package com.ariadne.backend.storage.sync.application
  */
 class StorageSourceNotFoundException(
     val storageSourceId: Long,
-) : RuntimeException("StorageSource not found: $storageSourceId",)
+) : RuntimeException("StorageSource not found: $storageSourceId")

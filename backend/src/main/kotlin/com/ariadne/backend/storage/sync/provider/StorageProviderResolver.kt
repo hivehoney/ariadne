@@ -10,17 +10,20 @@ import org.springframework.stereotype.Component
  * StorageSourceType과 StorageProvider 사이의 연결을 담당한다.
  */
 @Component
-class StorageProviderResolver(providers: List<StorageProvider>,) {
+class StorageProviderResolver(
+    providers: List<StorageProvider>,
+) {
     private val providersByType: Map<StorageSourceType, StorageProvider>
 
     init {
         val groupedProviders = providers.groupBy { it.type }
 
         require(groupedProviders.values.none { it.size > 1 }) {
-            val duplicatedTypes = groupedProviders
-                .filterValues { it.size > 1 }
-                .keys
-                .joinToString()
+            val duplicatedTypes =
+                groupedProviders
+                    .filterValues { it.size > 1 }
+                    .keys
+                    .joinToString()
 
             "Multiple StorageProviders registered for type: $duplicatedTypes"
         }
@@ -28,9 +31,8 @@ class StorageProviderResolver(providers: List<StorageProvider>,) {
         providersByType = providers.associateBy { it.type }
     }
 
-    fun resolve(type: StorageSourceType): StorageProvider {
-        return requireNotNull(providersByType[type]) {
+    fun resolve(type: StorageSourceType): StorageProvider =
+        requireNotNull(providersByType[type]) {
             "Unsupported storage source type: $type"
         }
-    }
 }

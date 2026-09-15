@@ -22,27 +22,33 @@ class MetadataSyncPersistenceService(
     private val fileRepository: FileRepository,
     private val fileLocationRepository: FileLocationRepository,
 ) {
-
     @Transactional
-    fun persist(storageSourceId: Long, metadata: List<StorageFileMetadata>, syncedAt: Instant,) {
-        val storageSource = storageSourceRepository
-            .findById(storageSourceId)
-            .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
+    fun persist(
+        storageSourceId: Long,
+        metadata: List<StorageFileMetadata>,
+        syncedAt: Instant,
+    ) {
+        val storageSource =
+            storageSourceRepository
+                .findById(storageSourceId)
+                .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
 
         metadata.forEach { item ->
-            val existingLocation = fileLocationRepository.findByStorageSource_IdAndExternalId(
+            val existingLocation =
+                fileLocationRepository.findByStorageSourceIdAndExternalId(
                     storageSourceId = storageSourceId,
                     externalId = item.externalId,
                 )
 
             if (existingLocation == null) {
-                val file = fileRepository.save(
-                    File(
-                        name = item.name,
-                        mimeType = item.mimeType,
-                        size = item.size,
-                    ),
-                )
+                val file =
+                    fileRepository.save(
+                        File(
+                            name = item.name,
+                            mimeType = item.mimeType,
+                            size = item.size,
+                        ),
+                    )
 
                 fileLocationRepository.save(
                     FileLocation(

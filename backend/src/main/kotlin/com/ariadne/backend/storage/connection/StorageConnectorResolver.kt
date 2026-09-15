@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component
 class StorageConnectorResolver(
     connectors: List<StorageConnector>,
 ) {
-
     /**
      * 동일한 Storage Type의 Connector가 둘 이상 등록되면
      * 어떤 구현체를 사용할지 모호하므로 시작 단계에서 실패시킨다.
@@ -33,8 +32,7 @@ class StorageConnectorResolver(
     /**
      * 요청한 Storage Type을 담당하는 Connector 반환
      */
-    fun resolve(type: StorageSourceType): StorageConnector {
-        return connectorByType[type]
+    fun resolve(type: StorageSourceType): StorageConnector =
+        connectorByType[type]
             ?: throw StorageConnectorNotFoundException(type)
-    }
 }
