@@ -33,6 +33,22 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-restclient")
+
+    /**
+     * Integration Test 실행 시 임시 MySQL 8.4 Container를 제공
+     */
+    // Testcontainers 2.x 모듈들의 버전을 동일하게 관리
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
+    // Integration Test에서 실제 MySQL Container를 사용
+    testImplementation("org.testcontainers:testcontainers-mysql")
+
+    /**
+     * DB Schema 변경 이력을 버전 단위로 관리
+     * 개발/테스트/CI에서 동일한 Migration을 적용
+     */
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    runtimeOnly("org.flywaydb:flyway-mysql")
 }
 
 kotlin {
@@ -49,4 +65,11 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    /**
+     * 모든 Backend 테스트는 test profile을 기본으로 사용
+     *
+     * 개발자의 로컬 DB나 실제 Google Provider에
+     * 테스트가 의존하지 않도록 테스트 환경을 통일
+     */
+    systemProperty("spring.profiles.active", "test")
 }
