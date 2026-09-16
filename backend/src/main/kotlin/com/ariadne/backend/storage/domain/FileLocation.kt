@@ -1,6 +1,15 @@
 package com.ariadne.backend.storage.domain
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.time.Instant
 
 /**
@@ -10,12 +19,16 @@ import java.time.Instant
  * Provider상의 실제 파일 위치를 식별한다.
  */
 @Entity
-@Table(name = "file_locations", uniqueConstraints = [
-    UniqueConstraint(name = "uk_file_locations_storage_source_external_id" ,
-        columnNames = ["storage_source_id", "external_id"]
-    )])
+@Table(
+    name = "file_locations",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_file_locations_storage_source_external_id",
+            columnNames = ["storage_source_id", "external_id"],
+        ),
+    ],
+)
 open class FileLocation protected constructor() {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null

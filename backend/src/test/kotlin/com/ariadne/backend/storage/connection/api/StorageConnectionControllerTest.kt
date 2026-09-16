@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class StorageConnectionControllerTest(
     @Autowired private val mockMvc: MockMvc,
 ) {
-
     @MockitoBean
     lateinit var storageConnectionService: StorageConnectionService
 
@@ -37,18 +36,18 @@ class StorageConnectionControllerTest(
         `when`(storageConnectionService.connect(request)).thenReturn(storageSource)
 
         // when & then
-        mockMvc.perform(
-            post("/api/storage-connections/google-drive")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "authorizationCode": "google-authorization-code"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/storage-connections/google-drive")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "authorizationCode": "google-authorization-code"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.storageSourceId").value(1))
             .andExpect(jsonPath("$.type").value("GOOGLE_DRIVE"))
             .andExpect(jsonPath("$.displayName").value("taeuk@example.com"))
@@ -56,18 +55,18 @@ class StorageConnectionControllerTest(
 
     @Test
     fun `Authorization Code가 비어있으면 연결 요청에 실패한다`() {
-        mockMvc.perform(
-            post("/api/storage-connections/google-drive")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "authorizationCode": ""
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/storage-connections/google-drive")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "authorizationCode": ""
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
 
         verifyNoInteractions(storageConnectionService)
     }

@@ -16,9 +16,10 @@ import javax.crypto.spec.SecretKeySpec
  * AES-GCM은 암호화와 함께 Authentication Tag를 생성하여
  * Credential의 기밀성뿐 아니라 저장된 데이터의 변조 여부도 검증할 수 있다.
  */
-class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: SecureRandom = SecureRandom(),)
-    : CredentialCipher {
-
+class AesGcmCredentialCipher(
+    encodedKey: String,
+    private val secureRandom: SecureRandom = SecureRandom(),
+) : CredentialCipher {
     /**
      * 실제 암호화에 사용하는 AES Key.
      *
@@ -35,7 +36,7 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
             "Credential encryption key must be 256 bits."
         }
 
-        secretKey = SecretKeySpec( keyBytes,AES,)
+        secretKey = SecretKeySpec(keyBytes, AES)
     }
 
     /**
@@ -50,14 +51,13 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
      *
      * 형태의 Payload를 Base64로 인코딩하여 저장한다.
      */
-    override fun encrypt( plainText: String, )
-    : String {
+    override fun encrypt(plainText: String): String {
         val iv = ByteArray(IV_SIZE_BYTES)
 
         // 같은 AES Key를 계속 사용하더라도 IV는 매 암호화마다 달라야 한다.
         secureRandom.nextBytes(iv)
 
-        val cipher = Cipher.getInstance( TRANSFORMATION, )
+        val cipher = Cipher.getInstance(TRANSFORMATION)
 
         cipher.init(
             Cipher.ENCRYPT_MODE,
@@ -72,9 +72,10 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
          * GCM의 doFinal 결과에는 암호문뿐 아니라 Authentication Tag도 포함된다.
          * 이 Tag를 통해 복호화 과정에서 데이터 변조 여부를 검증할 수 있다.
          */
-        val encryptedBytes = cipher.doFinal(
-            plainText.toByteArray(StandardCharsets.UTF_8,),
-        )
+        val encryptedBytes =
+            cipher.doFinal(
+                plainText.toByteArray(StandardCharsets.UTF_8),
+            )
 
         /*
          * IV 자체는 Secret이 아니므로 암호문과 함께 저장한다.
@@ -102,20 +103,19 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
      * 암호문이 변조되었거나 다른 Key로 복호화를 시도하면
      * GCM 검증에 실패하여 정상 Credential을 반환하지 않는다.
      */
-    override fun decrypt(
-        encryptedText: String,
-    ): String {
+    override fun decrypt(encryptedText: String): String {
         val (version, encodedPayload) =
-            encryptedText.split(
-                ":",
-                limit = 2,
-            ).let {
-                require(it.size == 2) {
-                    "Invalid encrypted credential format."
-                }
+            encryptedText
+                .split(
+                    ":",
+                    limit = 2,
+                ).let {
+                    require(it.size == 2) {
+                        "Invalid encrypted credential format."
+                    }
 
-                it[0] to it[1]
-            }
+                    it[0] to it[1]
+                }
 
         // 현재 구현에서 해석할 수 없는 암호화 형식은 임의로 복호화를 시도하지 않는다.
         require(version == FORMAT_VERSION) {
@@ -133,9 +133,9 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
         }
 
         // 암호화 당시 Payload 앞에 저장한 IV를 복원한다.
-        val iv = payload.copyOfRange(0, IV_SIZE_BYTES,)
-        val encryptedBytes = payload.copyOfRange(IV_SIZE_BYTES, payload.size,)
-        val cipher = Cipher.getInstance( TRANSFORMATION,)
+        val iv = payload.copyOfRange(0, IV_SIZE_BYTES)
+        val encryptedBytes = payload.copyOfRange(IV_SIZE_BYTES, payload.size)
+        val cipher = Cipher.getInstance(TRANSFORMATION)
 
         cipher.init(
             Cipher.DECRYPT_MODE,
@@ -150,7 +150,7 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
          * 복호화와 Authentication Tag 검증이 동시에 수행된다.
          * 저장된 Credential이 변조됐다면 이 단계에서 실패한다.
          */
-        val decryptedBytes = cipher.doFinal(encryptedBytes,)
+        val decryptedBytes = cipher.doFinal(encryptedBytes)
 
         return String(
             decryptedBytes,
@@ -159,7 +159,6 @@ class AesGcmCredentialCipher(encodedKey: String, private val secureRandom: Secur
     }
 
     companion object {
-
         private const val AES = "AES"
 
         /**

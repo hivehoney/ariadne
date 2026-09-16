@@ -18,18 +18,19 @@ import org.springframework.web.bind.annotation.RestController
 class StorageConnectionController(
     private val storageConnectionService: StorageConnectionService,
 ) {
-
     @PostMapping("/google-drive")
     fun connectGoogleDrive(
         @Valid @RequestBody request: GoogleDriveConnectionRequestDto,
     ): ResponseEntity<StorageConnectionResponseDto> {
-        val storageSource = storageConnectionService.connect(
-            GoogleDriveConnectionRequest(request.authorizationCode),
-        )
+        val storageSource =
+            storageConnectionService.connect(
+                GoogleDriveConnectionRequest(request.authorizationCode),
+            )
 
-        val storageSourceId = requireNotNull(storageSource.id) {
-            "Connected StorageSource must be persisted."
-        }
+        val storageSourceId =
+            requireNotNull(storageSource.id) {
+                "Connected StorageSource must be persisted."
+            }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             StorageConnectionResponseDto(

@@ -16,12 +16,10 @@ import java.time.Instant
 @Component
 @Profile("test")
 class FakeStorageProvider : StorageProvider {
-
     override val type: StorageSourceType = StorageSourceType.GOOGLE_DRIVE
 
-    override fun initialSync(storageSource: StorageSource,)
-        : List<StorageFileMetadata> {
-            require(storageSource.type == type) { "Unsupported storage source type: ${storageSource.type}" }
+    override fun initialSync(storageSource: StorageSource): List<StorageFileMetadata> {
+        require(storageSource.type == type) { "Unsupported storage source type: ${storageSource.type}" }
 
         return listOf(
             StorageFileMetadata(

@@ -14,9 +14,10 @@ import org.springframework.web.client.RestClientException
 class GoogleDriveClient(
     restClientBuilder: RestClient.Builder,
 ) {
-    private val restClient = restClientBuilder
-        .baseUrl(GOOGLE_DRIVE_BASE_URL)
-        .build()
+    private val restClient =
+        restClientBuilder
+            .baseUrl(GOOGLE_DRIVE_BASE_URL)
+            .build()
 
     fun getCurrentUser(accessToken: String): GoogleDriveUser {
         require(accessToken.isNotBlank()) {
@@ -24,16 +25,18 @@ class GoogleDriveClient(
         }
 
         return try {
-            val response = restClient.get()
-                .uri { builder ->
-                    builder.path("/about")
-                        .queryParam("fields", "user(displayName,emailAddress,permissionId)")
-                        .build()
-                }
-                .headers { it.setBearerAuth(accessToken) }
-                .retrieve()
-                .body(GoogleDriveAboutResponse::class.java)
-                ?: throw GoogleDriveApiException("Google Drive user response is empty.")
+            val response =
+                restClient
+                    .get()
+                    .uri { builder ->
+                        builder
+                            .path("/about")
+                            .queryParam("fields", "user(displayName,emailAddress,permissionId)")
+                            .build()
+                    }.headers { it.setBearerAuth(accessToken) }
+                    .retrieve()
+                    .body(GoogleDriveAboutResponse::class.java)
+                    ?: throw GoogleDriveApiException("Google Drive user response is empty.")
 
             response.user
         } catch (exception: RestClientException) {
@@ -69,11 +72,13 @@ class GoogleDriveClient(
     private fun listFilesPage(
         accessToken: String,
         pageToken: String?,
-    ): GoogleDriveFileListResponse {
-        return try {
-            restClient.get()
+    ): GoogleDriveFileListResponse =
+        try {
+            restClient
+                .get()
                 .uri { builder ->
-                    builder.path("/files")
+                    builder
+                        .path("/files")
                         .queryParam("pageSize", MAX_PAGE_SIZE)
                         .queryParam("spaces", "drive")
                         .queryParam("q", "trashed = false")
@@ -82,12 +87,10 @@ class GoogleDriveClient(
                             if (pageToken != null) {
                                 queryParam("pageToken", pageToken)
                             }
-                        }
-                        .build()
-                }
-                .headers { it.setBearerAuth(accessToken) }
+                        }.build()
+                }.headers { it.setBearerAuth(accessToken) }
                 .retrieve()
-                .body(GoogleDriveFileListResponse::class.java)?: throw GoogleDriveApiException("Google Drive file list response is empty.")
+                .body(GoogleDriveFileListResponse::class.java) ?: throw GoogleDriveApiException("Google Drive file list response is empty.")
         } catch (exception: GoogleDriveApiException) {
             throw exception
         } catch (exception: RestClientException) {
@@ -96,7 +99,6 @@ class GoogleDriveClient(
                 exception,
             )
         }
-    }
 
     companion object {
         private const val GOOGLE_DRIVE_BASE_URL = "https://www.googleapis.com/drive/v3"
@@ -104,7 +106,7 @@ class GoogleDriveClient(
 
         private const val FILE_FIELDS =
             "nextPageToken,incompleteSearch," +
-                    "files(id,name,mimeType,size,parents,createdTime,modifiedTime,webViewLink)"
+                "files(id,name,mimeType,size,parents,createdTime,modifiedTime,webViewLink)"
     }
 }
 

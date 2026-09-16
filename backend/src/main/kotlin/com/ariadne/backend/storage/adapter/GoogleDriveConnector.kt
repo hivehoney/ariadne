@@ -19,7 +19,6 @@ class GoogleDriveConnector(
     private val googleDriveOAuthClient: GoogleDriveOAuthClient,
     private val googleDriveClient: GoogleDriveClient,
 ) : StorageConnector {
-
     override val type = StorageSourceType.GOOGLE_DRIVE
 
     override fun connect(request: StorageConnectionRequest): StorageConnectionResult {
@@ -33,15 +32,17 @@ class GoogleDriveConnector(
          * Ariadne는 사용자 없이도 Metadata Sync를 수행해야 하므로
          * 지속적인 접근에 필요한 Refresh Token
          */
-        val refreshToken = token.refreshToken
-            ?: throw GoogleDriveConnectionException("Google refresh token was not issued.")
+        val refreshToken =
+            token.refreshToken
+                ?: throw GoogleDriveConnectionException("Google refresh token was not issued.")
 
         // 실제 Drive API 호출
         val user = googleDriveClient.getCurrentUser(token.accessToken)
 
-        val refreshExpiresAt = token.refreshTokenExpiresIn?.let {
-            LocalDateTime.now().plusSeconds(it)
-        }
+        val refreshExpiresAt =
+            token.refreshTokenExpiresIn?.let {
+                LocalDateTime.now().plusSeconds(it)
+            }
 
         return StorageConnectionResult(
             displayName = user.emailAddress ?: user.displayName,

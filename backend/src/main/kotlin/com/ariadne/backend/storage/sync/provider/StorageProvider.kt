@@ -10,7 +10,6 @@ import com.ariadne.backend.storage.domain.StorageSourceType
  * 이 인터페이스를 통해 파일 Metadata를 조회한다.
  */
 interface StorageProvider {
-
     /**
      * 해당 Provider가 담당하는 Storage 유형.
      */
@@ -21,5 +20,5 @@ interface StorageProvider {
      *
      * 현재 Phase에서는 Initial Sync만 지원
      */
-    fun initialSync( storageSource: StorageSource,): List<StorageFileMetadata>
+    fun initialSync(storageSource: StorageSource): List<StorageFileMetadata>
 }

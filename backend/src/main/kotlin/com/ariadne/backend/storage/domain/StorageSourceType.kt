@@ -8,5 +8,5 @@ enum class StorageSourceType {
     ONEDRIVE,
     MYBOX,
     WINDOWS,
-    ANDROID
+    ANDROID,
 }

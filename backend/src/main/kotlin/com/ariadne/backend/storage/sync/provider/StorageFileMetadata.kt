@@ -16,7 +16,6 @@ data class StorageFileMetadata(
     val path: String?,
     val modifiedAt: Instant?,
 ) {
-
     init {
         require(externalId.isNotBlank()) { "externalId cannot be blank" }
         require(name.isNotBlank()) { "name cannot be blank" }

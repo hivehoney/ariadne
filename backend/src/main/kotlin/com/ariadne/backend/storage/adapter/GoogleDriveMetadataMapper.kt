@@ -9,7 +9,6 @@ import java.time.Instant
  */
 @Component
 class GoogleDriveMetadataMapper {
-
     fun map(files: List<GoogleDriveFileMetadata>): List<StorageFileMetadata> {
         val fileById = files.associateBy { it.id }
 
