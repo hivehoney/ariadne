@@ -1,6 +1,13 @@
 package com.ariadne.backend.storage.domain
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.Instant
 
 /**
@@ -12,7 +19,6 @@ import java.time.Instant
 @Entity
 @Table(name = "storage_sources")
 open class StorageSource protected constructor() {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null
@@ -25,7 +31,7 @@ open class StorageSource protected constructor() {
         protected set
 
     // 표시될 저장소 이름
-    @Column(nullable = false,)
+    @Column(nullable = false)
     open lateinit var displayName: String
         protected set
 

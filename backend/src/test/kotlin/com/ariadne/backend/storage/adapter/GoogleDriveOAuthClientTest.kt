@@ -15,29 +15,31 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestClient
 
 class GoogleDriveOAuthClientTest {
-
     private val restClientBuilder = RestClient.builder()
     private val mockServer = MockRestServiceServer.bindTo(restClientBuilder).build()
 
-    private val client = GoogleDriveOAuthClient(
-        restClientBuilder = restClientBuilder,
-        clientId = "test-client-id",
-        clientSecret = "test-client-secret",
-        redirectUri = "",
-    )
+    private val client =
+        GoogleDriveOAuthClient(
+            restClientBuilder = restClientBuilder,
+            clientId = "test-client-id",
+            clientSecret = "test-client-secret",
+            redirectUri = "",
+        )
 
     @Test
     fun `Authorization Code를 Google Token으로 교환한다`() {
         // given
-        val expectedFormData = LinkedMultiValueMap<String, String>().apply {
-            add("client_id", "test-client-id")
-            add("client_secret", "test-client-secret")
-            add("code", "authorization-code")
-            add("grant_type", "authorization_code")
-            add("redirect_uri", "")
-        }
+        val expectedFormData =
+            LinkedMultiValueMap<String, String>().apply {
+                add("client_id", "test-client-id")
+                add("client_secret", "test-client-secret")
+                add("code", "authorization-code")
+                add("grant_type", "authorization_code")
+                add("redirect_uri", "")
+            }
 
-        mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        mockServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andExpect(method(HttpMethod.POST))
             .andExpect(content().formData(expectedFormData))
             .andRespond(
@@ -70,7 +72,8 @@ class GoogleDriveOAuthClientTest {
     @Test
     fun `Refresh Token이 없는 응답도 처리한다`() {
         // given
-        mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        mockServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andRespond(
                 withSuccess(
                     """
@@ -97,7 +100,8 @@ class GoogleDriveOAuthClientTest {
     @Test
     fun `Google Token 교환에 실패하면 OAuth 예외가 발생한다`() {
         // given
-        mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        mockServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andRespond(withBadRequest())
 
         // when & then
@@ -119,26 +123,28 @@ class GoogleDriveOAuthClientTest {
     @Test
     fun `Refresh Token으로 새로운 Access Token을 발급한다`() {
         // given
-        val expectedFormData = LinkedMultiValueMap<String, String>().apply {
-            add("client_id", "test-client-id")
-            add("client_secret", "test-client-secret")
-            add("refresh_token", "refresh-token")
-            add("grant_type", "refresh_token")
-        }
+        val expectedFormData =
+            LinkedMultiValueMap<String, String>().apply {
+                add("client_id", "test-client-id")
+                add("client_secret", "test-client-secret")
+                add("refresh_token", "refresh-token")
+                add("grant_type", "refresh_token")
+            }
 
-        mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        mockServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andExpect(method(HttpMethod.POST))
             .andExpect(content().formData(expectedFormData))
             .andRespond(
                 withSuccess(
                     """
-                {
-                  "access_token": "new-access-token",
-                  "expires_in": 3600,
-                  "scope": "https://www.googleapis.com/auth/drive.metadata.readonly",
-                  "token_type": "Bearer"
-                }
-                """.trimIndent(),
+                    {
+                      "access_token": "new-access-token",
+                      "expires_in": 3600,
+                      "scope": "https://www.googleapis.com/auth/drive.metadata.readonly",
+                      "token_type": "Bearer"
+                    }
+                    """.trimIndent(),
                     MediaType.APPLICATION_JSON,
                 ),
             )

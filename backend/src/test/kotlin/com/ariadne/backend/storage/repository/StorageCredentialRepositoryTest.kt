@@ -19,39 +19,39 @@ import java.time.LocalDateTime
 class StorageCredentialRepositoryTest(
     @Autowired
     private val storageSourceRepository: StorageSourceRepository,
-
     @Autowired
     private val storageCredentialRepository: StorageCredentialRepository,
 ) {
-
     @Test
     fun `StorageSource의 Credential을 저장하고 조회한다`() {
         // given
-        val storageSource = storageSourceRepository.save(
-            StorageSource(
-                type = StorageSourceType.GOOGLE_DRIVE,
-                displayName = "Google Drive",
-            ),
-        )
+        val storageSource =
+            storageSourceRepository.save(
+                StorageSource(
+                    type = StorageSourceType.GOOGLE_DRIVE,
+                    displayName = "Google Drive",
+                ),
+            )
 
         val expiresAt = LocalDateTime.now().plusHours(1)
 
-        val credential = StorageCredential(
-            storageSource = storageSource,
-            credentialType = StorageCredentialType.OAUTH2,
-            credentialStatus = StorageCredentialStatus.ACTIVE,
-            externalAccountId = "google-user-123",
-            scope = "drive.metadata.readonly",
-            credentialData = "encrypted-credential-data",
-            credentialSchemaVersion = 1,
-            expiresAt = expiresAt,
-        )
+        val credential =
+            StorageCredential(
+                storageSource = storageSource,
+                credentialType = StorageCredentialType.OAUTH2,
+                credentialStatus = StorageCredentialStatus.ACTIVE,
+                externalAccountId = "google-user-123",
+                scope = "drive.metadata.readonly",
+                credentialData = "encrypted-credential-data",
+                credentialSchemaVersion = 1,
+                expiresAt = expiresAt,
+            )
 
         storageCredentialRepository.saveAndFlush(credential)
 
         // when
         val savedCredential =
-            storageCredentialRepository.findByStorageSource_Id(
+            storageCredentialRepository.findByStorageSourceId(
                 storageSource.id!!,
             )
 
@@ -89,12 +89,13 @@ class StorageCredentialRepositoryTest(
     @Test
     fun `하나의 StorageSource에는 Credential을 하나만 저장할 수 있다`() {
         // given
-        val storageSource = storageSourceRepository.save(
-            StorageSource(
-                type = StorageSourceType.GOOGLE_DRIVE,
-                displayName = "Google Drive",
-            ),
-        )
+        val storageSource =
+            storageSourceRepository.save(
+                StorageSource(
+                    type = StorageSourceType.GOOGLE_DRIVE,
+                    displayName = "Google Drive",
+                ),
+            )
 
         storageCredentialRepository.saveAndFlush(
             StorageCredential(
@@ -119,21 +120,23 @@ class StorageCredentialRepositoryTest(
     @Test
     fun `Credential을 갱신하면 기존 Row를 유지하면서 인증정보가 변경된다`() {
         // given
-        val storageSource = storageSourceRepository.save(
-            StorageSource(
-                type = StorageSourceType.GOOGLE_DRIVE,
-                displayName = "Google Drive",
-            ),
-        )
+        val storageSource =
+            storageSourceRepository.save(
+                StorageSource(
+                    type = StorageSourceType.GOOGLE_DRIVE,
+                    displayName = "Google Drive",
+                ),
+            )
 
-        val credential = storageCredentialRepository.saveAndFlush(
-            StorageCredential(
-                storageSource = storageSource,
-                credentialType = StorageCredentialType.OAUTH2,
-                scope = "drive.metadata.readonly",
-                credentialData = "credential-before",
-            ),
-        )
+        val credential =
+            storageCredentialRepository.saveAndFlush(
+                StorageCredential(
+                    storageSource = storageSource,
+                    credentialType = StorageCredentialType.OAUTH2,
+                    scope = "drive.metadata.readonly",
+                    credentialData = "credential-before",
+                ),
+            )
 
         val credentialId = credential.id!!
         val refreshedAt = LocalDateTime.now()
@@ -149,7 +152,8 @@ class StorageCredentialRepositoryTest(
 
         // then
         val updatedCredential =
-            storageCredentialRepository.findById(credentialId)
+            storageCredentialRepository
+                .findById(credentialId)
                 .orElseThrow()
 
         assertThat(updatedCredential.id)
@@ -171,21 +175,23 @@ class StorageCredentialRepositoryTest(
     @Test
     fun `Credential 상태를 변경하면 기존 Row의 상태가 변경된다`() {
         // given
-        val storageSource = storageSourceRepository.save(
-            StorageSource(
-                type = StorageSourceType.GOOGLE_DRIVE,
-                displayName = "Google Drive",
-            ),
-        )
+        val storageSource =
+            storageSourceRepository.save(
+                StorageSource(
+                    type = StorageSourceType.GOOGLE_DRIVE,
+                    displayName = "Google Drive",
+                ),
+            )
 
-        val credential = storageCredentialRepository.saveAndFlush(
-            StorageCredential(
-                storageSource = storageSource,
-                credentialType = StorageCredentialType.OAUTH2,
-                credentialStatus = StorageCredentialStatus.ACTIVE,
-                credentialData = "credential",
-            ),
-        )
+        val credential =
+            storageCredentialRepository.saveAndFlush(
+                StorageCredential(
+                    storageSource = storageSource,
+                    credentialType = StorageCredentialType.OAUTH2,
+                    credentialStatus = StorageCredentialStatus.ACTIVE,
+                    credentialData = "credential",
+                ),
+            )
 
         val credentialId = credential.id!!
 
@@ -198,7 +204,8 @@ class StorageCredentialRepositoryTest(
 
         // then
         val updatedCredential =
-            storageCredentialRepository.findById(credentialId)
+            storageCredentialRepository
+                .findById(credentialId)
                 .orElseThrow()
 
         assertThat(updatedCredential.id)

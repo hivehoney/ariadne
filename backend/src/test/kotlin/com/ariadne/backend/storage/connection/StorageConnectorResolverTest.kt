@@ -6,15 +6,15 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 
 class StorageConnectorResolverTest {
-
     @Test
     fun `Storage Type에 맞는 Connector를 반환한다`() {
         // given
         val googleConnector = FakeStorageConnector(StorageSourceType.GOOGLE_DRIVE)
 
-        val resolver = StorageConnectorResolver(
-            listOf(googleConnector),
-        )
+        val resolver =
+            StorageConnectorResolver(
+                listOf(googleConnector),
+            )
 
         // when
         val connector = resolver.resolve(StorageSourceType.GOOGLE_DRIVE)
@@ -42,8 +42,9 @@ class StorageConnectorResolverTest {
         val googleConnector = FakeStorageConnector(StorageSourceType.GOOGLE_DRIVE)
         val resolver = StorageConnectorResolver(listOf(googleConnector))
 
-        val unsupportedType = StorageSourceType.entries
-            .first { it != StorageSourceType.GOOGLE_DRIVE }
+        val unsupportedType =
+            StorageSourceType.entries
+                .first { it != StorageSourceType.GOOGLE_DRIVE }
 
         // when & then
         assertThatThrownBy {
@@ -55,8 +56,7 @@ class StorageConnectorResolverTest {
     private class FakeStorageConnector(
         override val type: StorageSourceType,
     ) : StorageConnector {
-        override fun connect(request: StorageConnectionRequest): StorageConnectionResult {
+        override fun connect(request: StorageConnectionRequest): StorageConnectionResult =
             throw UnsupportedOperationException("Resolver 테스트에서는 connect를 사용하지 않는다.")
-        }
     }
 }

@@ -26,7 +26,6 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "storage_credentials")
 class StorageCredential(
-
     /**
      * 이 Credential이 어느 Storage 연결에 속하는지를 나타낸다.
      * 하나의 StorageSource에는 하나의 Credential만 존재한다.
@@ -38,7 +37,6 @@ class StorageCredential(
         unique = true,
     )
     val storageSource: StorageSource,
-
     /**
      * 해당 Storage가 사용하는 인증 방식.
      * 예:
@@ -52,7 +50,6 @@ class StorageCredential(
         length = 50,
     )
     val credentialType: StorageCredentialType,
-
     /**
      * 현재 Credential의 사용 가능 상태.
      */
@@ -63,7 +60,6 @@ class StorageCredential(
         length = 50,
     )
     var credentialStatus: StorageCredentialStatus = StorageCredentialStatus.ACTIVE,
-
     /**
      * 외부 Provider가 제공하는 계정 식별자.
      *
@@ -75,7 +71,6 @@ class StorageCredential(
         length = 255,
     )
     val externalAccountId: String? = null,
-
     /**
      * 현재 Credential에 부여된 권한 범위.
      * OAuth Provider에서 사용하며 DEVICE 방식 등에서는 null일 수 있다.
@@ -85,7 +80,6 @@ class StorageCredential(
         columnDefinition = "TEXT",
     )
     var scope: String? = null,
-
     /**
      * Provider별 실제 인증정보.
      *
@@ -98,7 +92,6 @@ class StorageCredential(
         columnDefinition = "TEXT",
     )
     var credentialData: String,
-
     /**
      * credentialData 내부 구조의 버전.
      *
@@ -110,7 +103,6 @@ class StorageCredential(
         nullable = false,
     )
     var credentialSchemaVersion: Int = 1,
-
     /**
      * 현재 Credential 또는 인증 세션의 만료 시각.
      *
@@ -118,7 +110,6 @@ class StorageCredential(
      */
     @Column(name = "expires_at")
     var expiresAt: LocalDateTime? = null,
-
     /**
      * Refresh Credential 자체의 만료 시각.
      *
@@ -126,27 +117,23 @@ class StorageCredential(
      */
     @Column(name = "refresh_expires_at")
     var refreshExpiresAt: LocalDateTime? = null,
-
     /**
      * 마지막으로 인증정보를 정상 갱신한 시각.
      */
     @Column(name = "last_refreshed_at")
     var lastRefreshedAt: LocalDateTime? = null,
-
     @Column(
         name = "created_at",
         nullable = false,
         updatable = false,
     )
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(
         name = "updated_at",
         nullable = false,
     )
     var updatedAt: LocalDateTime = createdAt,
 ) {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null

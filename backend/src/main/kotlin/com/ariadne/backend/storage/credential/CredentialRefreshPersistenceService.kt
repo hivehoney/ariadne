@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional
 class CredentialRefreshPersistenceService(
     private val storageCredentialRepository: StorageCredentialRepository,
 ) {
-
     @Transactional
     fun markRefreshed(storageSourceId: Long) {
-        val credential = storageCredentialRepository.findByStorageSource_Id(storageSourceId)
-            ?: throw StorageCredentialNotFoundException(storageSourceId)
+        val credential =
+            storageCredentialRepository.findByStorageSourceId(storageSourceId)
+                ?: throw StorageCredentialNotFoundException(storageSourceId)
 
         credential.markRefreshed()
     }

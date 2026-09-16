@@ -50,10 +50,14 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      # Build 과정에서 Testcontainers가 임시 MySQL을 생성하고
-      # Flyway Migration 적용 후 Backend Test까지 실행한다.
+      # Backend Build와 Test를 실행한다.
+      # Testcontainers가 임시 MySQL을 생성하고 Flyway Migration도 적용한다.
       - name: Build and test backend
         run: ./gradlew build --no-daemon
+
+      # Backend Kotlin 코드의 formatting과 style 규칙을 검사한다.
+      - name: Run Backend lint
+        run: ./gradlew ktlintCheck --no-daemon
 
   android:
     name: Android Test and Build
@@ -97,3 +101,6 @@ jobs:
       # Debug APK가 실제로 생성 가능한지 검증한다.
       - name: Build Android debug
         run: ./gradlew assembleDebug --no-daemon
+
+      - name: Run Android lint
+        run: ./gradlew lintDebug --no-daemon

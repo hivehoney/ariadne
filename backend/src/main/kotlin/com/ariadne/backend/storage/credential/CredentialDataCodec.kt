@@ -11,16 +11,18 @@ import kotlin.reflect.KClass
  * 이를 통해 평문 Credential이 실수로 DB에 저장되는 것을 방지한다.
  */
 interface CredentialDataCodec {
-
     /**
      * Provider CredentialData를 직렬화하고 암호화하여
      * StorageCredential.credentialData에 저장할 문자열을 만든다.
      */
-    fun encode( credentialData: StorageCredentialData,): String
+    fun encode(credentialData: StorageCredentialData): String
 
     /**
      * StorageCredential에 저장된 암호문을 복호화하고 역직렬화하여
      * Provider 전용 CredentialData로 복원한다.
      */
-    fun <T : StorageCredentialData> decode(encodedData: String, type: KClass<T>,): T
+    fun <T : StorageCredentialData> decode(
+        encodedData: String,
+        type: KClass<T>,
+    ): T
 }

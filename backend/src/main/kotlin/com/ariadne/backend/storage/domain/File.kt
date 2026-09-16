@@ -17,7 +17,6 @@ import java.time.Instant
 @Entity
 @Table(name = "files")
 open class File protected constructor() {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null
@@ -88,8 +87,8 @@ open class File protected constructor() {
 
         val changed =
             this.name != name ||
-                    this.mimeType != mimeType ||
-                    this.size != size
+                this.mimeType != mimeType ||
+                this.size != size
 
         if (!changed) {
             return

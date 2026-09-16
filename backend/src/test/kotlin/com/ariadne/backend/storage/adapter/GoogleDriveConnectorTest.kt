@@ -12,31 +12,33 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.web.client.RestClient
 
 class GoogleDriveConnectorTest {
-
     private val oauthBuilder = RestClient.builder()
     private val oauthServer = MockRestServiceServer.bindTo(oauthBuilder).build()
 
     private val driveBuilder = RestClient.builder()
     private val driveServer = MockRestServiceServer.bindTo(driveBuilder).build()
 
-    private val oauthClient = GoogleDriveOAuthClient(
-        restClientBuilder = oauthBuilder,
-        clientId = "test-client-id",
-        clientSecret = "test-client-secret",
-        redirectUri = "",
-    )
+    private val oauthClient =
+        GoogleDriveOAuthClient(
+            restClientBuilder = oauthBuilder,
+            clientId = "test-client-id",
+            clientSecret = "test-client-secret",
+            redirectUri = "",
+        )
 
     private val driveClient = GoogleDriveClient(driveBuilder)
 
-    private val connector = GoogleDriveConnector(
-        googleDriveOAuthClient = oauthClient,
-        googleDriveClient = driveClient,
-    )
+    private val connector =
+        GoogleDriveConnector(
+            googleDriveOAuthClient = oauthClient,
+            googleDriveClient = driveClient,
+        )
 
     @Test
     fun `Authorization Code로 Google Drive 연결 결과를 생성한다`() {
         // given
-        oauthServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        oauthServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andRespond(
                 withSuccess(
                     """
@@ -52,13 +54,13 @@ class GoogleDriveConnectorTest {
                 ),
             )
 
-        driveServer.expect(
-            requestTo(
-                "https://www.googleapis.com/drive/v3/about" +
+        driveServer
+            .expect(
+                requestTo(
+                    "https://www.googleapis.com/drive/v3/about" +
                         "?fields=user(displayName,emailAddress,permissionId)",
-            ),
-        )
-            .andExpect(header("Authorization", "Bearer access-token"))
+                ),
+            ).andExpect(header("Authorization", "Bearer access-token"))
             .andRespond(
                 withSuccess(
                     """
@@ -75,9 +77,10 @@ class GoogleDriveConnectorTest {
             )
 
         // when
-        val result = connector.connect(
-            GoogleDriveConnectionRequest("authorization-code"),
-        )
+        val result =
+            connector.connect(
+                GoogleDriveConnectionRequest("authorization-code"),
+            )
 
         // then
         assertThat(result.displayName).isEqualTo("taeuk@example.com")
@@ -98,7 +101,8 @@ class GoogleDriveConnectorTest {
     @Test
     fun `Refresh Token이 발급되지 않으면 Google Drive 연결에 실패한다`() {
         // given
-        oauthServer.expect(requestTo("https://oauth2.googleapis.com/token"))
+        oauthServer
+            .expect(requestTo("https://oauth2.googleapis.com/token"))
             .andRespond(
                 withSuccess(
                     """

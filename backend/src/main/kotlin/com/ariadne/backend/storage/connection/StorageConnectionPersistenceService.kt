@@ -21,18 +21,18 @@ class StorageConnectionPersistenceService(
     private val storageCredentialRepository: StorageCredentialRepository,
     private val credentialDataCodec: CredentialDataCodec,
 ) {
-
     @Transactional
     fun save(
         type: StorageSourceType,
         result: StorageConnectionResult,
     ): StorageSource {
-        val storageSource = storageSourceRepository.save(
-            StorageSource(
-                type = type,
-                displayName = result.displayName,
-            ),
-        )
+        val storageSource =
+            storageSourceRepository.save(
+                StorageSource(
+                    type = type,
+                    displayName = result.displayName,
+                ),
+            )
 
         /*
          * Provider Credential에는 Refresh Token 등 민감정보가 포함될 수 있으므로
