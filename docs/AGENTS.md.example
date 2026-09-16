@@ -1,0 +1,18 @@
+# AGENTS.md
+
+Before changing code, read:
+
+- `docs/README.md`
+- `docs/architecture/overview.md`
+- `docs/decisions/README.md`
+- the document for the area you are modifying
+
+Rules:
+
+1. Do not move Provider authentication from Android to Backend without a new ADR.
+2. Keep Provider-specific SDK/DTOs behind StorageClient/adapter boundaries.
+3. Do not hold DB transactions during external network I/O.
+4. Do not introduce Redis, Kafka, Elasticsearch, WebFlux, Kubernetes, or AI classification without a concrete measured need and a documented decision.
+5. When changing Entity/DDL/API/architecture, update the corresponding docs in the same change.
+6. Android and Backend are separate Gradle projects.
+7. Use the repository Git workflow documented in `docs/project/git-workflow.md`.
