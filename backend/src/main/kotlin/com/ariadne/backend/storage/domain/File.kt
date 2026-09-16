@@ -9,7 +9,7 @@ import jakarta.persistence.Table
 import java.time.Instant
 
 /**
- * OneSearch가 관리하는 논리적인 파일을 나타낸다.
+ * Ariadne가 관리하는 논리적인 파일을 나타낸다.
  *
  * 실제 저장 위치는 FileLocation에서 관리하며,
  * File은 Storage 종류와 관계없는 파일 자체의 Metadata를 가진다.

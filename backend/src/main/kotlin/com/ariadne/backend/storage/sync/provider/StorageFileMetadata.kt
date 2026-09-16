@@ -6,7 +6,7 @@ import java.time.Instant
  * 외부 Storage Provider에서 조회한 파일 Metadata의 공통 모델.
  *
  * Google Drive 등의 Provider 고유 응답 객체를
- * OneSearch 내부 Sync 로직에 직접 노출하지 않기 위해 사용한다.
+ * Ariadne 내부 Sync 로직에 직접 노출하지 않기 위해 사용한다.
  */
 data class StorageFileMetadata(
     val externalId: String,
