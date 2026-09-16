@@ -20,10 +20,10 @@ class GoogleDriveAccessTokenService(
     private val googleDriveOAuthClient: GoogleDriveOAuthClient,
     private val refreshPersistenceService: CredentialRefreshPersistenceService,
 ) {
-
     fun issue(storageSourceId: Long): String {
-        val credential = storageCredentialRepository.findByStorageSource_Id(storageSourceId)
-            ?: throw StorageCredentialNotFoundException(storageSourceId)
+        val credential =
+            storageCredentialRepository.findByStorageSourceId(storageSourceId)
+                ?: throw StorageCredentialNotFoundException(storageSourceId)
 
         check(credential.credentialType == StorageCredentialType.OAUTH2) {
             "Google Drive credential must be OAuth2."
@@ -33,14 +33,16 @@ class GoogleDriveAccessTokenService(
             "Google Drive credential is not active."
         }
 
-        val credentialData = credentialDataCodec.decode(
-            credential.credentialData,
-            GoogleDriveCredentialData::class,
-        )
+        val credentialData =
+            credentialDataCodec.decode(
+                credential.credentialData,
+                GoogleDriveCredentialData::class,
+            )
 
-        val token = googleDriveOAuthClient.refreshAccessToken(
-            credentialData.refreshToken,
-        )
+        val token =
+            googleDriveOAuthClient.refreshAccessToken(
+                credentialData.refreshToken,
+            )
 
         refreshPersistenceService.markRefreshed(storageSourceId)
 

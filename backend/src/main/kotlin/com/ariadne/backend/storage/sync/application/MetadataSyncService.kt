@@ -17,11 +17,11 @@ class MetadataSyncService(
     private val storageProviderResolver: StorageProviderResolver,
     private val metadataSyncPersistenceService: MetadataSyncPersistenceService,
 ) {
-
     fun sync(storageSourceId: Long) {
-        val storageSource = storageSourceRepository
-            .findById(storageSourceId)
-            .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
+        val storageSource =
+            storageSourceRepository
+                .findById(storageSourceId)
+                .orElseThrow { StorageSourceNotFoundException(storageSourceId) }
 
         val provider = storageProviderResolver.resolve(storageSource.type)
 

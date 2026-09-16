@@ -17,15 +17,13 @@ class GoogleDriveProvider(
     private val googleDriveClient: GoogleDriveClient,
     private val metadataMapper: GoogleDriveMetadataMapper,
 ) : StorageProvider {
-
     override val type = StorageSourceType.GOOGLE_DRIVE
 
-    override fun initialSync(
-        storageSource: StorageSource,
-    ): List<StorageFileMetadata> {
-        val storageSourceId = requireNotNull(storageSource.id) {
-            "Google Drive sync requires persisted StorageSource."
-        }
+    override fun initialSync(storageSource: StorageSource): List<StorageFileMetadata> {
+        val storageSourceId =
+            requireNotNull(storageSource.id) {
+                "Google Drive sync requires persisted StorageSource."
+            }
 
         val accessToken = accessTokenService.issue(storageSourceId)
         val files = googleDriveClient.listFiles(accessToken)

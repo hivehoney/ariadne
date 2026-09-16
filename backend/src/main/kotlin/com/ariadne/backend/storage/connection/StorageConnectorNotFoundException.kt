@@ -8,5 +8,5 @@ import com.ariadne.backend.storage.domain.StorageSourceType
 class StorageConnectorNotFoundException(
     type: StorageSourceType,
 ) : RuntimeException(
-    "Storage connector not found for type: $type",
-)
+        "Storage connector not found for type: $type",
+    )

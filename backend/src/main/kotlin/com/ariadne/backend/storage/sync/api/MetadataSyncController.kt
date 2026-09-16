@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/api/storage-sources")
-class MetadataSyncController(private val metadataSyncService: MetadataSyncService,) {
-
+class MetadataSyncController(
+    private val metadataSyncService: MetadataSyncService,
+) {
     @PostMapping("/{storageSourceId}/sync")
-    fun sync( @PathVariable storageSourceId: Long,) : ResponseEntity<Void> {
+    fun sync(
+        @PathVariable storageSourceId: Long,
+    ): ResponseEntity<Void> {
         metadataSyncService.sync(storageSourceId)
         return ResponseEntity.ok().build()
     }

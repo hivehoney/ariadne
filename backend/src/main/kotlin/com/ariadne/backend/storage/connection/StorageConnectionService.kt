@@ -14,7 +14,6 @@ class StorageConnectionService(
     private val connectorResolver: StorageConnectorResolver,
     private val persistenceService: StorageConnectionPersistenceService,
 ) {
-
     fun connect(request: StorageConnectionRequest): StorageSource {
         val connector = connectorResolver.resolve(request.type)
 
