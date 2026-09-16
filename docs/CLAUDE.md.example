@@ -1,0 +1,20 @@
+# CLAUDE.md
+
+Use `docs/` as the project context source.
+
+Read first:
+
+- `docs/README.md`
+- `docs/product/vision.md`
+- `docs/architecture/overview.md`
+- `docs/decisions/README.md`
+
+When implementing a task:
+
+- identify the owning layer first;
+- reuse the existing Android/Backend boundary;
+- prefer the smallest change that preserves current architecture;
+- explain new dependency/configuration by role, reason, alternative, and location;
+- add concise responsibility comments to new classes and non-obvious functions;
+- do not treat roadmap items as already implemented;
+- propose a Conventional Commit message after a meaningful development unit is complete.
