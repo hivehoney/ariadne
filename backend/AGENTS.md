@@ -43,11 +43,9 @@ Inspect the existing Domain, application, persistence, and adapter boundaries be
 - When Entity mappings change, inspect the corresponding DDL and database documentation.
 
 ## Provider boundary
-
 - Do not extend legacy Backend credential/OAuth code into new Provider flows unless the task explicitly authorizes that direction.
 
 ## Code Review Rules
-
 When reviewing Backend changes, flag changes that:
 
 - perform external network I/O while a DB transaction is active
@@ -59,7 +57,6 @@ When reviewing Backend changes, flag changes that:
 - extend legacy Backend credential or OAuth code into new Provider flows without an explicit architecture decision
 
 Focus findings on correctness, transaction safety, persistence behavior, compatibility, and architectural regressions.
-
 Safe path: keep external I/O outside DB transactions and keep persistence transactions focused on database work.
 
 ## Build and test
@@ -69,10 +66,9 @@ From `backend/`:
 ```powershell
 .\gradlew.bat test
 .\gradlew.bat build
+.\gradlew.bat ktlintCheck
 ```
 
 Run relevant integration tests when changed behavior depends on persistence or Spring wiring.
-
 Do not treat mocked Provider tests as successful real Provider E2E verification.
-
 If MySQL, Provider credentials, or another required dependency is unavailable, report that limitation explicitly.
