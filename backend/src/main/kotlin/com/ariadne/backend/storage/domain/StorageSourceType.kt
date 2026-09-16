@@ -1,4 +1,4 @@
-zpackage com.ariadne.backend.storage.domain
+package com.ariadne.backend.storage.domain
 
 /**
  * Ariadne가 지원하는 저장소 유형.
