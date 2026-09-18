@@ -15,7 +15,7 @@ Android and Backend are independent Gradle projects.
 
 Do not assume there is a shared root Gradle build.
 
-## Read before coding
+## Read before coding or reviewing
 
 Before making architectural or cross-module changes, read:
 
@@ -40,16 +40,16 @@ Preserve the current implementation boundary unless the task explicitly requires
 ## Architecture rules
 
 - Provider authentication is handled by Android.
+- Provider authorization is handled by Android.
 - Provider API access is handled by Android.
 - Backend owns the Ariadne metadata domain.
 - Search, analysis, and organization features belong to Backend when implemented.
 - Do not assume search, analysis, or organization features are already implemented unless confirmed by the current code.
 - Provider access or refresh tokens must not be newly stored in Backend without an explicit architecture decision.
-- Keep Provider-specific SDKs, authentication objects, and DTOs behind adapter/client boundaries.
+- Keep Provider-specific SDKs, authentication objects, and DTOs behind adapter or client boundaries.
 - Do not expose Provider-specific models to common Storage UI or Backend domain code.
 - Do not duplicate Provider API responsibilities between Android and Backend.
 - Do not hold DB transactions while performing external network I/O.
-- API contract changes must be checked on both Android and Backend.
 - Do not introduce new infrastructure, frameworks, or major architectural capabilities without a concrete requirement and documented decision.
 
 Examples include:
@@ -71,11 +71,12 @@ Roadmap items are not implementation requirements unless the current task explic
 
 Before changing code:
 
-1. Read the relevant documentation.
-2. Inspect the existing implementation.
-3. Identify the affected modules.
-4. Reuse existing abstractions where appropriate.
-5. Prefer the smallest change that satisfies the requirement.
+1. Read the relevant project and module instructions.
+2. Read the relevant documentation.
+3. Inspect the existing implementation.
+4. Identify the affected modules.
+5. Reuse existing abstractions where appropriate.
+6. Prefer the smallest change that satisfies the requirement.
 
 Do not:
 
@@ -86,6 +87,7 @@ Do not:
 - add dependencies only for experimentation
 - disable or weaken tests just to make a build pass
 - treat mocked Provider tests as successful real Provider E2E tests
+- expand the current task beyond the linked Issue's Scope without explicit approval
 
 After changing code:
 
@@ -98,11 +100,31 @@ Do not claim that a task is verified if the relevant checks were not actually ru
 
 If verification cannot be completed because a required emulator, device, database, external Provider, credential, or environment is unavailable, report that limitation explicitly.
 
+## Issue scope
+
+The linked Issue defines the current task boundary.
+
+Respect:
+
+- Goal
+- Scope
+- Acceptance Criteria
+- Architecture Constraints
+- Out of Scope
+
+Do not treat an explicitly staged or Out of Scope capability as a defect in the current change.
+
+If a potential problem belongs outside the current Issue Scope:
+
+- identify it separately when it is materially relevant
+- do not silently expand the implementation
+- do not require it for completion unless it blocks the stated Acceptance Criteria or creates a concrete compatibility, security, correctness, or runtime problem
+
 ## API contract
 
-When an API contract changes, check both sides of the contract.
+When an API contract changes, inspect all affected sides of the contract.
 
-At minimum, review:
+At minimum, consider:
 
 - Backend endpoint
 - Request DTO
@@ -113,32 +135,47 @@ At minimum, review:
 - Android mapping or consumer code
 - backward compatibility where relevant
 
-Do not consider a cross-module API change complete after modifying only one side.
+Checking both sides does not mean both sides must always be modified in the same task.
+
+If the linked Issue explicitly stages Backend and Android work separately, preserve that Scope.
+
+Do not report the intentionally deferred side as a current-task defect unless the partial change creates an actual compatibility, security, correctness, or runtime problem within the stated Scope.
+
+For a task intended to complete an end-to-end contract change, do not consider the change complete until all in-scope consumers and producers are updated.
 
 ## Code Review Rules
 
-When reviewing changes, prioritize correctness, architecture boundaries, security, regressions, and cross-module compatibility over stylistic preferences.
+When reviewing changes, prioritize:
+
+1. correctness and functional regressions
+2. security and credential exposure
+3. architecture boundary violations
+4. API contract and compatibility problems
+5. transaction, persistence, and data-integrity risks
+6. missing validation for changed behavior
+7. missing tests for changed behavior
+
+Apply the closest applicable module `AGENTS.md` in addition to these repository-wide rules.
+
+Respect the linked Issue's Goal, Scope, Acceptance Criteria, Architecture Constraints, and Out of Scope.
 
 Flag changes that:
 
-- move Provider authentication or Provider API access into Backend without an explicit architecture decision
+- move Provider authentication, authorization, or Provider API access into Backend without an explicit architecture decision
 - newly persist Provider access or refresh tokens in Backend without an approved architecture change
-- change an Android ↔ Backend API contract without updating all affected sides of the contract
+- expose Provider-specific SDK types, authentication objects, or DTOs across common module boundaries
+- leave an in-scope API producer or consumer incompatible after a contract change
 - introduce secrets, tokens, credentials, or sensitive values into code, logs, tests, configuration, or documentation
 - treat roadmap functionality as already implemented
 - weaken or disable tests merely to make verification pass
 
-For module-specific findings, also apply the applicable module `AGENTS.md`.
+Do not flag an explicitly deferred Android or Backend implementation solely because it is absent when the linked Issue intentionally stages the work separately.
 
-Leave formatting, lint, and other deterministic checks to automated tooling and CI.
+Leave formatting, lint, and other deterministic checks to automated tooling and CI when those checks are configured.
 
-Focus review comments on issues with meaningful correctness, security, compatibility, regression, or architectural impact.
+Avoid findings based only on personal style preference, optional refactoring, or unrelated cleanup when the existing project convention is valid.
 
-Avoid comments based only on personal style preference when the existing project convention is valid.
-
-Safe path: preserve the existing architecture boundaries and API contracts.
-
-If an exception is required, treat it as an explicit architecture change and follow the architecture-change process below.
+For the repository PR review workflow, use `.agents/skills/pr-review/` when applicable. Its review policy defines finding format, severity, Human Triage, and publication behavior; it does not override project architecture rules in this file or a module `AGENTS.md`.
 
 ## Documentation
 
